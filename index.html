@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chess Bishop with Animated Background Light</title>
+    <link rel="icon" href="favicon.ico" type="image/x-icon">
+    <style>
+        body, html {
+            height: 100%;
+            margin: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: #000;
+            overflow: hidden;
+            font-family: Arial, sans-serif;
+            color: white;
+        }
+        .container {
+            position: relative;
+            width: 600px;
+            height: 600px;
+            background: url('A_chess_bishop_piece_on_a_checkered_board_with_a_d.png') no-repeat center center/cover;
+        }
+        canvas {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+        }
+        .header {
+            position: absolute;
+            top: 20px;
+            width: 100%;
+            text-align: center;
+            z-index: 2;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        .header img {
+            width: 64px; /* Adjust size as needed */
+            height: 64px;
+            margin-right: 10px;
+        }
+        .title-container {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+        }
+        .title {
+            font-size: 36px;
+            font-weight: bold;
+        }
+        .subtitle {
+            font-size: 18px;
+            margin-top: 10px; /* Adjust spacing as needed */
+        }
+        .coming-soon {
+            position: absolute;
+            bottom: 20px;
+            width: 100%;
+            text-align: center;
+            z-index: 2;
+            font-size: 24px;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <canvas id="overlayCanvas"></canvas>
+        <div class="header">
+            <img src="logo2.png" alt="CHESSIFY Logo">
+            <div class="title-container">
+                <div class="title">CHESSIFY</div>
+                <div class="subtitle">AI, Fast and Slow</div>
+            </div>
+        </div>
+        <div class="coming-soon">Coming Soon</div>
+    </div>
+
+    <script>
+        const canvas = document.getElementById('overlayCanvas');
+        const ctx = canvas.getContext('2d');
+        canvas.width = canvas.offsetWidth;
+        canvas.height = canvas.offsetHeight;
+
+        const circles = [];
+        const delay = 100; // Animation delay in milliseconds
+
+        function getRandomInt(min, max) {
+            return Math.floor(Math.random() * (max - min + 1)) + min;
+        }
+
+        function createCircle() {
+            const x = getRandomInt(0, canvas.width);
+            const y = getRandomInt(0, canvas.height);
+            const maxRadius = getRandomInt(20, 100);
+            const alpha = 0;
+            const fadingIn = true;
+            const speedX = (Math.random() - 0.5) * 5; // Random speed in X direction
+            const speedY = (Math.random() - 0.5) * 5; // Random speed in Y direction
+            return { x, y, maxRadius, radius: 0, alpha, fadingIn, speedX, speedY };
+        }
+
+        function updateCircle(circle) {
+            // Update position
+            circle.x += circle.speedX;
+            circle.y += circle.speedY;
+
+            // Ensure circles don't move out of bounds
+            if (circle.x - circle.radius < 0 || circle.x + circle.radius > canvas.width) {
+                circle.speedX *= -1;
+            }
+            if (circle.y - circle.radius < 0 || circle.y + circle.radius > canvas.height) {
+                circle.speedY *= -1;
+            }
+
+            // Update radius and alpha
+            if (circle.fadingIn) {
+                circle.alpha += 0.02;
+                circle.radius += 2;
+                if (circle.alpha >= 1 || circle.radius >= circle.maxRadius) {
+                    circle.fadingIn = false;
+                }
+            } else {
+                circle.alpha -= 0.02;
+                circle.radius -= 2;
+                if (circle.alpha <= 0 || circle.radius <= 0) {
+                    Object.assign(circle, createCircle());
+                }
+            }
+        }
+
+        function drawCircle(circle) {
+            ctx.save();
+            ctx.globalCompositeOperation = 'destination-out';
+            ctx.beginPath();
+            ctx.arc(circle.x, circle.y, circle.radius, 0, 2 * Math.PI);
+            ctx.fill();
+            ctx.restore();
+        }
+
+        function animate() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+            // Draw the semi-transparent black layer
+            ctx.fillStyle = 'rgba(0, 0, 0, 0.95)';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+            // Update and draw each circle
+            circles.forEach(circle => {
+                updateCircle(circle);
+                drawCircle(circle);
+            });
+
+            setTimeout(() => requestAnimationFrame(animate), delay);
+        }
+
+        // Initialize circles
+        for (let i = 0; i < 3; i++) {
+            circles.push(createCircle());
+        }
+
+        animate();
+    </script>
+</body>
+</html>
